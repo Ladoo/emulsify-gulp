@@ -29,7 +29,16 @@ const cleanCSS = require('gulp-clean-css');
         }).on('error', sass.logError))
         .pipe(prefix(cssConfig.autoPrefixerBrowsers))
         .pipe(sourcemaps.init())
-        .pipe(cleanCSS())
+        .pipe(gulpif(cssConfig.cleanCSS.enabled === true, cleanCSS({
+          compatibility: cssConfig.cleanCSS.options.compatibility,
+          format: cssConfig.cleanCSS.options.format,
+          inline: cssConfig.cleanCSS.options.inline,
+          inlineTimeout: cssConfig.cleanCSS.options.inlineTimeout,
+          level: cssConfig.cleanCSS.options.level,
+          rebase: cssConfig.cleanCSS.options.rebase,
+          sourceMap: cssConfig.cleanCSS.options.sourceMap,
+          sourceMapInlineSources: cssConfig.cleanCSS.options.sourceMapInlineSources
+        })))
         .pipe(sourcemaps.write((cssConfig.sourceMapEmbed) ? null : './'))
         .pipe(gulpif(cssConfig.flattenDestOutput, flatten()))
         .pipe(gulp.dest(cssConfig.dest))
@@ -42,7 +51,7 @@ const cleanCSS = require('gulp-clean-css');
     gulp.task('css', 'Compile Scss to CSS using Libsass with Autoprefixer and SourceMaps', cssCompile);
 
     gulp.task('validate:css', 'Lint Scss files', () => {
-      let src = cssConfig.src;
+      let [src] = cssConfig.src;
       if (cssConfig.lint.extraSrc) {
         src = src.concat(cssConfig.lint.extraSrc);
       }
